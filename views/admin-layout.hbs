@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{title}}</title>
+    <link href="../stylesheets/bootstrap.css" rel="stylesheet">
+    <link href="../stylesheets/loginform.css" rel="stylesheet">
+    <link href="../stylesheets/admin-layout.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="../stylesheets/admin-product.css" rel="stylesheet">
+</head>
+<body>
+    <section id="sideMenu">
+        <nav>
+            <a href="/">
+                <i class="fa fa-home" aria-hidden="true"></i>
+                Home
+            </a>
+            <a href="#">
+                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                Profile
+            </a>
+            <a href="/manage-accounts">
+                <i class="fa fa-users" aria-hidden="true"></i>
+                Account
+            </a>
+            <a href="/manage-producers">
+                <i class="fa fa-tags" aria-hidden="true"></i>
+                Producer
+            </a>
+            <a href="/manage-products">
+                <i class="fa fa-laptop" aria-hidden="true"></i>
+                Product
+            </a>
+            <a href="/manage-orders">
+                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                Order
+            </a>
+            <a href="#">
+                <i class="fa fa-line-chart" aria-hidden="true"></i>
+                Statistic
+            </a>
+        </nav>
+    </section>
+    <header>
+        <div class="user-area">
+            <span>{{name}}</span>
+            <span>&nbsp;|&nbsp;</span>
+            <a href="#" class="log-out" onclick="document.getElementById('log_out').submit()">Log out</a>
+            <form id="log_out" method="POST" action="/logout"></form>    
+        </div>
+    </header>
+    <section class="content-area">
+        <div class="heading">
+            <h1>{{title}}</h1>
+        </div>
+        {{{body}}}
+    </section>
+    <script>
+        function viewDescribe(name, describe) {
+            document.getElementById('describe-view').innerHTML = describe;
+            document.getElementById('describe-name').innerHTML = name;
+            
+            document.getElementById('id01').style.display='block';
+        }
+        function viewConfiguration(name, screen, camera, pin, ram, cpu, os) {
+            document.getElementById('screen-view').innerHTML = screen;
+            document.getElementById('camera-view').innerHTML = camera;
+            document.getElementById('pin-view').innerHTML = pin;
+            document.getElementById('ram-view').innerHTML = ram;
+            document.getElementById('cpu-view').innerHTML = cpu;
+            document.getElementById('os-view').innerHTML = os;
+            document.getElementById('config-name').innerHTML = name;
+            document.getElementById('id02').style.display='block';
+        }
+        function editOrDelete(name, id, producer, price, count, describe, scn, cam, pin, ram, cpu, os) {
+            document.getElementById("product_name").value = name;
+            document.getElementById('product_id').value = id;
+            document.getElementById('producer').value = producer;
+            document.getElementById('price').value = price;
+            document.getElementById('count').value = count;
+            document.getElementById('describe').value = describe;
+            document.getElementById('screen').value = scn;
+            document.getElementById('camera').value = cam;
+            document.getElementById('pin').value = pin;
+            document.getElementById('ram').value = ram;
+            document.getElementById('cpu').value = cpu;
+            document.getElementById('os').value = os;
+            document.getElementById('id04').style.display='block';
+        }
+
+        function editOrDeleteAccount(username, email, firstname, lastname, phone, address, role) {
+            document.getElementById("username").value = username;
+
+            if (email === "undefined") {
+                document.getElementById("email").value = "";
+            }
+            else {
+                document.getElementById("email").value = email;
+            }
+            
+            if (firstname === "undefined") {
+                document.getElementById("firstname").value = "";
+            }
+            else {
+                document.getElementById("firstname").value = firstname;
+            }
+
+            if (lastname === "undefined") {
+                document.getElementById("lastname").value = "";
+            }
+            else {
+                document.getElementById("lastname").value = lastname;
+            }
+
+            if (phone === "undefined") {
+                document.getElementById("phone").value = "";
+            }
+            else {
+                document.getElementById("phone").value = phone;
+            }
+
+            if (address === "undefined") {
+                document.getElementById("address").value = "";
+            }
+            else {
+                document.getElementById("address").value = address;
+            }
+            
+            document.getElementById('role').value = role;
+            document.getElementById('id06').style.display='block';
+        }
+
+        function deleteProducer(name) {
+            document.getElementById("name").value = name;
+            document.getElementById('id09').style.display='block';
+        }
+
+        function viewDetailOrder(_id) {
+            var xhttp = new XMLHttpRequest()
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var bill = JSON.parse(this.response)
+                    document.getElementById("id").value = bill._id;
+                    let d = new Date(bill.date);
+                    document.getElementById('date').value = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes();
+                    document.getElementById('total_count').value = bill.total_count;
+                    document.getElementById('total_price').value = bill.total_price.toLocaleString('vi') + '₫';
+                    document.getElementById('fullname').value = bill.fullname;
+                    document.getElementById('phone').value = bill.phone;
+                    document.getElementById('address').value = bill.address;
+                    document.getElementById('state').value = bill.state;
+
+                    var html_string = '';
+                    for (var i = 0; i < bill.product.length; i++) {
+                        html_string += '<tr>';
+                        html_string += '<td>' + bill.product[i].productName + '</td>';
+                        html_string += '<td>' + bill.product[i].count + '</td>';
+                        html_string += '<td>' + bill.product[i].unitPrice.toLocaleString('vi') + '₫' + '</td>';   
+                        html_string += '<td>' + bill.product[i].total_unit_price.toLocaleString('vi') + '₫' + '</td>';    
+                        html_string += '</tr>';
+                    }
+                    document.getElementById('cart_product_list').innerHTML = html_string;
+                    document.getElementById('id07').style.display='block';
+                }
+            }
+            xhttp.open("GET", "/data/bill/" + _id, true)
+            xhttp.send()
+        }
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src='../javascripts/order.js'></script>
+</body>
+</html>
