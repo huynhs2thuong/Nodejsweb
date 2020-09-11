@@ -4,6 +4,7 @@ var accountSchema = new Schema({
     email: {type: String, required: true, unique: true},
     username: {type: String, required: true, unique: true, min: 6, max: 30},
     password: {type: String, required: true, min: 8},
+    img : {type: String},
     role: {type: String, enum: ['Khachhang', 'Quanly']},
     firstname: {type: String},
     lastname: {type: String},

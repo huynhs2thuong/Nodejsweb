@@ -259,13 +259,68 @@ async.parallel([
         req.logout()
         res.redirect("/")
       })
+      function decodeBase64Image(dataString) 
+        {
+          var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          var response = {};
 
+          if (matches.length !== 3) 
+          {
+            return new Error('Invalid input string');
+          }
+
+          response.type = matches[1];
+          response.data = new Buffer(matches[2], 'base64');
+
+          return response;
+        }
       router.post("/register", function(req, res) {
+        var imageTypeRegularExpression      = /\/(.*?)$/;      
+
+        // Generate random string
+        var crypto                          = require('crypto');
+        var seed                            = crypto.randomBytes(20);
+        var uniqueSHA1String                = crypto
+                                               .createHash('sha1')
+                                                .update(seed)
+                                                 .digest('hex');
+
+        var base64Data = req.body.truoc_input;
+        console.log(base64Data);
+        var imageBuffer                      = decodeBase64Image(base64Data);
+        var userUploadedFeedMessagesLocation = './public/upload/';
+
+        var uniqueRandomImageName            = 'image-' + uniqueSHA1String;
+        // This variable is actually an array which has 5 values,
+        // The [1] value is the real image extension
+        var imageTypeDetected                = imageBuffer
+                                                .type
+                                                 .match(imageTypeRegularExpression);
+
+        var userUploadedImagePath            = userUploadedFeedMessagesLocation + 
+                                               uniqueRandomImageName +
+                                               '.' + 
+                                               imageTypeDetected[1];
+
+        // Save decoded binary image to disk
+        try
+        {
+        require('fs').writeFile(userUploadedImagePath, imageBuffer.data,  
+                                function() 
+                                {
+                                  console.log('DEBUG - feed:message: Saved to disk image attached by user:', userUploadedImagePath);
+                                });
+        }
+        catch(error)
+        {
+            console.log('ERROR:', error);
+        }
         if (accountsList.find(element => element.email == req.body.email || element.username == req.body.username) == null) {
           var newuser = {
             email: req.body.email,
             username: req.body.username,
             password: req.body.password,
+            img:uniqueRandomImageName,
             role: 'Khachhang'
           }
           var user = new accountSchema(newuser)
@@ -301,7 +356,7 @@ async.parallel([
               to: newuser.email, // list of receivers
               subject: 'Create your shopping account', // Subject line
               text: 'Please click this link to active your account', // plain text body
-              html: '<a href="http://localhost:3000/validate/' + link + '">Your link</a>'// html body
+              html: '<a href="http://localhost:3000/upload/' + uniqueRandomImageName + '.jpeg">Your link</a>'// html body
           };
 
           // send mail with defined transport object

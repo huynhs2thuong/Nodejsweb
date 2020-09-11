@@ -138,7 +138,8 @@ function getAccountHTMLRowTable(accountsList) {
 
       html_string += '<td>' + accountsList[i].username + '</td>';
       html_string += '<td>' + accountsList[i].email + '</td>';
-      html_string += '<td>' + accountsList[i].role + '</td>';      
+      html_string += '<td>' + accountsList[i].role + '</td>';
+      html_string += '<td><img src="http://localhost:3000/upload/'+ accountsList[i].img + '.jpeg" width=150 height=150></td>';      
       
       html_string += '</tr>';
   }
